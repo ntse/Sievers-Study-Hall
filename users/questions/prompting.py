@@ -1,11 +1,14 @@
 import os
 import json
+import logging
 
 from huggingface_hub import InferenceClient
 from huggingface_hub.errors import BadRequestError
 
 from data.data_processing.exercises import get_level_from_exercise
 from users.session_management.logging import log_prompt_usage
+
+logger = logging.getLogger(__name__)
 
 response_format = {
     "type": "json_schema",
@@ -68,29 +71,37 @@ def get_response_from_prompt(unit, exercise, prompt):
     level = get_level_from_exercise(unit, exercise)
 
     def make_request(temperature):
-        response = client.chat.completions.create(
-            model=model[level],
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
+        try:
+            response = client.chat.completions.create(
+                model=model[level],
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                temperature=temperature,
+                max_tokens=1000,
+                response_format=response_format,
+                extra_body={
+                    "reasoning_effort": "low"
                 }
-            ],
-            temperature=temperature,
-            max_tokens=1000,
-            response_format=response_format,
-            extra_body={
-                "reasoning_effort": "low"
-            }
-        )
+            )
 
-        input_tokens = response.usage.prompt_tokens
-        output_tokens = response.usage.completion_tokens
-        usage= response.usage
+            input_tokens = response.usage.prompt_tokens
+            output_tokens = response.usage.completion_tokens
+            usage = response.usage
 
-        log_prompt_usage(unit, exercise, input_tokens, output_tokens, usage)
+            log_prompt_usage(unit, exercise, input_tokens, output_tokens, usage)
 
-        return json.loads(response.choices[0].message.content)
+            return json.loads(response.choices[0].message.content)
+        except Exception as e:
+            # Log error without exposing sensitive details like API keys
+            logger.error(
+                f"AI API error for unit={unit}, exercise={exercise}: {type(e).__name__}",
+                exc_info=False
+            )
+            raise
 
     try:
         return make_request(temperature=0.7)
