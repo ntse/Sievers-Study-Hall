@@ -1,10 +1,10 @@
 import os
-from datetime import timedelta
 
 from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail
 
+from config import Config
 from users.users.models import User, db
 from webapp.routes import routes_bp
 
@@ -14,6 +14,7 @@ app = Flask(
     static_folder="webapp/static",
     template_folder="webapp/templates",
 )
+app.config.from_object(Config)
 
 secret_key = os.environ.get("FLASK_SECRET_KEY")
 if not secret_key:
@@ -49,9 +50,6 @@ def load_user(user_id):
 
 
 app.register_blueprint(routes_bp)
-
-app.config["SESSION_PERMANENT"] = True
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
 
 @app.after_request
 def add_security_headers(response):

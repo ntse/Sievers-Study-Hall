@@ -4,6 +4,7 @@ import pytest
 from flask import Blueprint, Flask
 from flask_login import LoginManager
 
+from config import Config
 from users.rate_limiting.decorator import rate_limit_exercise_submission
 from users.users.models import User, db
 
@@ -12,6 +13,7 @@ from users.users.models import User, db
 def app():
     """Create Flask app for testing."""
     app = Flask(__name__)
+    app.config.from_object(Config)
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.secret_key = "test-secret"

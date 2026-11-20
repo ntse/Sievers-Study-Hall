@@ -27,7 +27,7 @@ FROM base AS production
 
 RUN useradd -m -u 1000 appuser
 
-COPY --chown=appuser:appuser app.py .
+COPY --chown=appuser:appuser app.py config.py ./
 COPY --chown=appuser:appuser users/ users/
 COPY --chown=appuser:appuser webapp/ webapp/
 COPY --chown=appuser:appuser data/ data/
