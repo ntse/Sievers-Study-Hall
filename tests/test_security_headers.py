@@ -1,6 +1,5 @@
 """Tests for security headers."""
 
-import pytest
 
 
 def test_security_headers_present(app):
