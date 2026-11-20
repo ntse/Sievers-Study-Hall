@@ -1,5 +1,6 @@
 from flask import render_template, session, request, redirect, url_for, flash, jsonify, abort
 from flask_login import current_user
+from markupsafe import escape
 from typing import cast
 
 from data.content.unit.unit_content_by_language import UNIT_NAME
@@ -131,6 +132,9 @@ def exercise_page(unit, exercise):
 
     result, user_answer, previous_question_id, translation, cefr_level, commentary = read_feedback(session)
 
+    # Escape user answer for safe HTML rendering
+    user_answer_escaped = escape(user_answer) if user_answer else ""
+
     feedback_message = format_feedback(unit, exercise, language, previous_question_id, user_answer, translation, cefr_level, commentary)
     previous_question = load_question_text(unit, exercise, previous_question_id)
     correction = format_correction(unit, exercise, language, result, user_answer, previous_question)
@@ -183,7 +187,7 @@ def exercise_page(unit, exercise):
                            nr=question_id,
                            result=result,
                            feedback_message=feedback_message,
-                           user_answer=user_answer,
+                           user_answer=user_answer_escaped,
                            show_options=SHOW_OPTIONS[language],
                            unit_url_path=UNIT_URL_PATH,
                            unit_name=UNIT_NAME[language][unit],
@@ -310,6 +314,9 @@ def feedback_page(unit, exercise):
 
     result, user_answer, previous_question_id, translation, cefr_level, commentary = read_feedback(session)
 
+    # Escape user answer for safe HTML rendering
+    user_answer_escaped = escape(user_answer) if user_answer else ""
+
     feedback_message = format_feedback(unit, exercise, language, question_id, user_answer, translation, cefr_level, commentary)
     previous_question = format_question(unit, exercise, language, question_id)
     correction = format_correction(unit, exercise, language, result, user_answer, previous_question)
@@ -339,7 +346,7 @@ def feedback_page(unit, exercise):
                            nr=question_id,
                            result=result,
                            feedback_message=feedback_message,
-                           user_answer=user_answer,
+                           user_answer=user_answer_escaped,
                            unit_url_path=UNIT_URL_PATH,
                            unit_name=UNIT_NAME[language][unit],
                            answered_questions=compute_answered_questions(session, unit, exercise=exercise),
