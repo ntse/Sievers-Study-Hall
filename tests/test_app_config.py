@@ -1,8 +1,15 @@
 """Tests for app configuration and security settings."""
 
 import os
+from unittest.mock import patch
 
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def restore_environment():
+    with patch.dict(os.environ):
+        yield
 
 
 def test_secret_key_production_required():
