@@ -1,6 +1,5 @@
 """Tests for session security configuration."""
 
-import pytest
 from datetime import timedelta
 
 
