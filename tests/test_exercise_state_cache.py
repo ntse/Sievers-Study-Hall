@@ -15,7 +15,10 @@ from flask_login import LoginManager, login_user
 
 from users.progress.exercise_state_cache import get_user_exercise_states
 from users.progress.progress import is_exercise_completed_db, is_exercise_started
-from users.progress.score import get_lowest_scored_exercises
+from users.progress.score import (
+    get_lowest_scored_exercises,
+    get_perfect_scored_exercises,
+)
 from users.users.models import User, UserExerciseState, db
 
 UNIT = "genus"
@@ -167,3 +170,25 @@ def test_get_lowest_scored_exercises_sorted_and_limited(app):
 def test_get_lowest_scored_exercises_empty_for_anonymous_user(app):
     with app.test_request_context():
         assert get_lowest_scored_exercises() == []
+
+
+@pytest.mark.parametrize("scores", [[1.0], [0.0, 0.99, 1.0]])
+def test_progress_separates_perfect_scores(app, scores):
+    user = make_user("perfect@example.com")
+    for exercise, score in enumerate(scores, start=1):
+        make_state(user, UNIT, exercise, {"score": score})
+    make_state(user, UNIT, len(scores) + 1, {})
+
+    with app.test_request_context():
+        login_user(user)
+        assert get_lowest_scored_exercises() == [
+            (UNIT, exercise, score)
+            for exercise, score in enumerate(scores, start=1)
+            if score < 1.0
+        ]
+        assert get_perfect_scored_exercises() == [(UNIT, len(scores), 1.0)]
+
+
+def test_perfect_scored_exercises_empty_for_anonymous_user(app):
+    with app.test_request_context():
+        assert get_perfect_scored_exercises() == []

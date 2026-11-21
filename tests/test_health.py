@@ -18,7 +18,9 @@ def client(app, monkeypatch):
 
 
 def test_live_does_not_query_database(client):
-    with patch("sqlalchemy.engine.Engine.connect", side_effect=AssertionError("DB accessed")):
+    with patch(
+        "sqlalchemy.engine.Engine.connect", side_effect=AssertionError("DB accessed")
+    ):
         response = client.get("/health/live")
     assert response.status_code == 200
     assert response.json == {"status": "ok"}

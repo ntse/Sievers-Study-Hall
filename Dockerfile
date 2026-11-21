@@ -32,7 +32,7 @@ COPY --chown=appuser:appuser users/ users/
 COPY --chown=appuser:appuser webapp/ webapp/
 COPY --chown=appuser:appuser data/ data/
 
-RUN mkdir -p instance && chown -R appuser:appuser instance
+RUN mkdir -p instance logs && chown -R appuser:appuser instance logs
 
 USER appuser
 

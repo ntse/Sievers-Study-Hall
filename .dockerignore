@@ -14,3 +14,4 @@ loadtest/
 node_modules/
 .idea/
 .vscode/
+test-results/
