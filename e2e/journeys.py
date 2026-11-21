@@ -30,7 +30,8 @@ def start_exercise(page, exercise):
 
 def reset_exercise(page, exercise):
     page.goto("/guidance" + exercise["path"])
-    page.locator(f'form[action="/reset{exercise["path"]}"] button').click()
+    reset_path = exercise["path"].replace("/unit/", "/reset/", 1)
+    page.locator(f'form[action="{reset_path}"] button').click()
     expect(page.locator(".question-count")).to_contain_text(
         f"0/{len(exercise['answers'])}"
     )
