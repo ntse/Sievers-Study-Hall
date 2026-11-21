@@ -291,7 +291,9 @@ def merge_anonymous_progress_in_database():
                 try:
                     nr = int(row["Nr"])
                 except (KeyError, TypeError, ValueError, OverflowError):
-                    current_app.logger.warning("[merge] skipping row with invalid question number")
+                    current_app.logger.warning(
+                        "[merge] skipping row with invalid question number"
+                    )
                     continue
                 qid = make_qid(
                     unit,

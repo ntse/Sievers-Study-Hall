@@ -30,6 +30,7 @@ jobs:
           python-version: '3.12'
       - run: pip install ruff
       - run: ruff check .
+      - run: ruff format .
 
   build:
     runs-on: ubuntu-24.04
@@ -109,3 +110,9 @@ jobs:
           docker logs app
           exit 1
       - run: docker logs app
+
+  e2e:
+    needs: build
+    uses: ./.github/workflows/e2e.yml
+    with:
+      image: sievers-study-hall:${{ github.sha }}
