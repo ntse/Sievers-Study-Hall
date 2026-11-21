@@ -45,7 +45,11 @@ from users.progress.progress import (
     is_exercise_started,
     update_progress_in_home_page,
 )
-from users.progress.score import get_lowest_scored_exercises, write_score
+from users.progress.score import (
+    get_lowest_scored_exercises,
+    get_perfect_scored_exercises,
+    write_score,
+)
 from users.questions.content_format import format_correction, format_description
 from users.users.models import Bookmark
 from users.users.settings import (
@@ -275,6 +279,7 @@ def progress():
         score=write_score,
         is_exercise_started=is_exercise_started,
         lowest_score_exercises=lowest_score_exercises,
+        perfect_score_exercises=get_perfect_scored_exercises(),
         get_level_from_exercise=get_level_from_exercise,
         homepage=HOMEPAGE[language],
     )
