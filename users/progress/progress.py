@@ -1,7 +1,7 @@
 import random
 
 from flask_login import current_user
-from sqlalchemy.dialects.sqlite import insert
+from sqlalchemy.dialects.postgresql import insert
 
 from data.data_processing.exercises import df_exercises, get_exercises_by_level
 from data.data_processing.total_questions import (

@@ -6,7 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 db = SQLAlchemy()
 
-from sqlalchemy.dialects.sqlite import JSON as SQLITE_JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 
 
@@ -31,9 +31,7 @@ class User(UserMixin, db.Model):
 class UserSettings(db.Model):
     __tablename__ = "user_settings"
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    settings = db.Column(
-        MutableDict.as_mutable(SQLITE_JSON), nullable=False, default=dict
-    )
+    settings = db.Column(MutableDict.as_mutable(JSONB), nullable=False, default=dict)
 
 
 class UserExerciseState(db.Model):
@@ -47,7 +45,7 @@ class UserExerciseState(db.Model):
     exercise = db.Column(db.Integer, nullable=False)
     # Mirrors your session but keyed by stable content hashes (qids); structure example:
     # { "correct_ids": ["qid1","qid2"], "incorrect": {"qid7": "mein falsches wort"} }
-    state = db.Column(db.JSON, nullable=False, default=dict)
+    state = db.Column(JSONB, nullable=False, default=dict)
 
     updated_at = db.Column(
         db.DateTime,

@@ -3,8 +3,9 @@ import os
 from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_migrate import Migrate
 
-from config import Config
+from config import Config, database_url
 from users.users.models import User, db
 from webapp.routes import routes_bp
 
@@ -25,7 +26,7 @@ if not secret_key:
     secret_key = "dev-only-insecure-key"
 app.secret_key = secret_key
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///prod.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url()
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
@@ -38,6 +39,7 @@ mail = Mail()
 mail.init_app(app)
 
 db.init_app(app)
+migrate = Migrate(app, db)
 
 # Minimal Flask-Login setup (needed for login_user/logout_user)
 login_manager = LoginManager(app)
@@ -65,7 +67,3 @@ def add_security_headers(response):
         "max-age=31536000; includeSubDomains"
     )
     return response
-
-
-with app.app_context():
-    db.create_all()

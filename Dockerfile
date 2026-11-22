@@ -21,7 +21,7 @@ RUN mkdir -p instance
 
 EXPOSE 5000
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["sh", "-c", "flask db upgrade && exec flask run --host=0.0.0.0"]
 
 FROM base AS production
 
@@ -31,6 +31,7 @@ COPY --chown=appuser:appuser app.py config.py ./
 COPY --chown=appuser:appuser users/ users/
 COPY --chown=appuser:appuser webapp/ webapp/
 COPY --chown=appuser:appuser data/ data/
+COPY --chown=appuser:appuser migrations/ migrations/
 
 RUN mkdir -p instance logs && chown -R appuser:appuser instance logs
 
@@ -41,4 +42,4 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD python -c "from urllib.request import urlopen; urlopen('http://localhost:5000/', timeout=2).close()"
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "60", "--access-logfile", "-", "--error-logfile", "-", "app:app"]
+CMD ["sh", "-c", "flask db upgrade && exec gunicorn --bind 0.0.0.0:5000 --workers 4 --timeout 60 --access-logfile - --error-logfile - app:app"]

@@ -4,17 +4,24 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
+    depends_on:
+      db:
+        condition: service_healthy
     container_name: sievers-study-hall
     ports:
       - "5000:5000"
     environment:
+      - DATABASE_URL=${DATABASE_URL:-}
+      - POSTGRES_HOST=${POSTGRES_HOST:-db}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_USER=${POSTGRES_USER:-study_hall}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-study_hall}
+      - POSTGRES_DB=${POSTGRES_DB:-study_hall}
       - FLASK_APP=app.py
       - FLASK_ENV=production
       - FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-change-me-in-production}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
-    volumes:
-      - ./instance:/app/instance
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:5000/', timeout=2).close()"]
@@ -24,6 +31,26 @@ services:
       start_period: 5s
     networks:
       - sievers-network
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-study_hall}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-study_hall}
+      POSTGRES_DB: ${POSTGRES_DB:-study_hall}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    networks:
+      - sievers-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
 
 networks:
   sievers-network:

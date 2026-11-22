@@ -78,8 +78,10 @@ def production_app(credentials, pytestconfig):
     setup = """
 import os
 from app import app
+from flask_migrate import upgrade
 from users.users.models import User, db
 with app.app_context():
+    upgrade()
     user = User(email=os.environ["E2E_EMAIL"])
     user.set_password(os.environ["E2E_PASSWORD"])
     db.session.add(user)
@@ -91,10 +93,49 @@ with app.app_context():
         "E2E_PASSWORD": credentials[1],
         "FLASK_SECRET_KEY": secrets.token_hex(32),
     }
+    env["DATABASE_URL"] = (
+        f"postgresql+psycopg://study_hall:study_hall@{name}-db:5432/study_hall"
+    )
     started = False
+    db_started = False
+    network_created = False
     try:
+        docker("network", "create", name)
+        network_created = True
         docker(
             "run",
+            "-d",
+            "--name",
+            name + "-db",
+            "--network",
+            name,
+            "-e",
+            "POSTGRES_USER=study_hall",
+            "-e",
+            "POSTGRES_PASSWORD=study_hall",
+            "-e",
+            "POSTGRES_DB=study_hall",
+            "postgres:17",
+        )
+        db_started = True
+        for _ in range(60):
+            ready = subprocess.run(
+                ["docker", "exec", name + "-db", "pg_isready", "-U", "study_hall"],
+                capture_output=True,
+                check=False,
+                timeout=10,
+            )
+            if ready.returncode == 0:
+                break
+            time.sleep(1)
+        else:
+            pytest.fail("Postgres did not become ready")
+        docker(
+            "run",
+            "--network",
+            name,
+            "-e",
+            "DATABASE_URL",
             "-d",
             "--name",
             name,
@@ -147,6 +188,10 @@ with app.app_context():
             )
             (artifacts / "container.log").write_text(result.stdout + result.stderr)
             docker("rm", "-f", name)
+        if db_started:
+            docker("rm", "-f", "-v", name + "-db")
+        if network_created:
+            docker("network", "rm", name)
 
 
 @pytest.fixture(scope="session")

@@ -25,9 +25,9 @@ UNIT = "genus"
 
 
 @pytest.fixture
-def app():
+def app(database_uri):
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.secret_key = "test-secret"
 
@@ -40,7 +40,6 @@ def app():
         return User.query.get(int(user_id))
 
     with app.app_context():
-        db.create_all()
         yield app
         db.session.remove()
         db.drop_all()

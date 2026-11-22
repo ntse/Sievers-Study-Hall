@@ -1,20 +1,59 @@
 """Shared test fixtures and utilities."""
 
+import os
+import uuid
+from pathlib import Path
+
 import pytest
 from flask import Blueprint, Flask
 from flask_login import LoginManager
+from flask_migrate import Migrate, upgrade
+from sqlalchemy import create_engine, text
 
-from config import Config
+from config import Config, database_url
 from users.rate_limiting.decorator import rate_limit_exercise_submission
 from users.users.models import User, db
 
 
 @pytest.fixture
-def app():
+def database_uri():
+    """Isolate each test in its own Postgres schema, never drop shared tables."""
+    url = database_url(
+        os.environ.get(
+            "TEST_DATABASE_URL",
+            "postgresql+psycopg://study_hall:study_hall@localhost:5432/study_hall_test",
+        )
+    )
+    engine = create_engine(url)
+    schema = "test_" + uuid.uuid4().hex
+    with engine.begin() as conn:
+        conn.execute(text(f'CREATE SCHEMA "{schema}"'))
+    try:
+        scoped_url = url.update_query_dict({"options": f"-csearch_path={schema}"})
+        migration_app = Flask(__name__)
+        migration_app.config["SQLALCHEMY_DATABASE_URI"] = scoped_url
+        db.init_app(migration_app)
+        Migrate(
+            migration_app,
+            db,
+            directory=str(Path(__file__).resolve().parents[1] / "migrations"),
+        )
+        with migration_app.app_context():
+            upgrade()
+            db.engine.dispose()
+        yield scoped_url
+    finally:
+        with engine.begin() as conn:
+            conn.execute(text(f'DROP SCHEMA "{schema}" CASCADE'))
+        engine.dispose()
+
+
+@pytest.fixture
+def app(database_uri):
     """Create Flask app for testing."""
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.secret_key = "test-secret"
 
@@ -56,7 +95,6 @@ def app():
         return response
 
     with app.app_context():
-        db.create_all()
         yield app
         db.session.remove()
         db.drop_all()
