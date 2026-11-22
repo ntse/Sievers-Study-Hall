@@ -3,9 +3,9 @@
 from datetime import timedelta
 
 
-def test_session_lifetime_24_hours(app):
-    """Session lifetime should be 24 hours."""
-    assert app.config["PERMANENT_SESSION_LIFETIME"] == timedelta(hours=24)
+def test_session_lifetime_180_days(app):
+    """Session lifetime should be 180 days."""
+    assert app.config["PERMANENT_SESSION_LIFETIME"] == timedelta(days=180)
 
 
 def test_session_cookie_secure_flag(app):

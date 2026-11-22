@@ -8,6 +8,10 @@ from flask_migrate import Migrate
 from config import Config, database_url
 from users.users.models import User, db
 from webapp.routes import routes_bp
+from webapp.session_migration import (
+    init_legacy_session_migration,
+    init_server_side_sessions,
+)
 
 app = Flask(
     __name__,
@@ -39,6 +43,8 @@ mail = Mail()
 mail.init_app(app)
 
 db.init_app(app)
+init_server_side_sessions(app, db)
+init_legacy_session_migration(app)
 migrate = Migrate(app, db)
 
 # Minimal Flask-Login setup (needed for login_user/logout_user)
