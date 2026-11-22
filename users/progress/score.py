@@ -261,8 +261,7 @@ def get_lowest_scored_exercises(limit=10):
     scored = [
         (row.unit, row.exercise, (row.state or {}).get("score"))
         for row in rows
-        if (row.state or {}).get("score") is not None
-        and row.state["score"] < 1.0
+        if (row.state or {}).get("score") is not None and row.state["score"] < 1.0
     ]
 
     scored.sort(key=lambda x: x[2])

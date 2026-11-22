@@ -78,6 +78,18 @@ jobs:
   test:
     runs-on: ubuntu-24.04
     name: Test
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: study_hall
+          POSTGRES_PASSWORD: study_hall
+          POSTGRES_DB: study_hall_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U study_hall -d study_hall_test"
+          --health-interval 2s --health-timeout 5s --health-retries 30
     needs: build
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -90,6 +102,18 @@ jobs:
   smoke-test:
     runs-on: ubuntu-24.04
     name: Smoke Test
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: study_hall
+          POSTGRES_PASSWORD: study_hall
+          POSTGRES_DB: study_hall_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U study_hall -d study_hall_test"
+          --health-interval 2s --health-timeout 5s --health-retries 30
     needs: build
     steps:
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
@@ -97,7 +121,7 @@ jobs:
           name: docker-image
           path: /tmp
       - run: docker load --input /tmp/image.tar
-      - run: docker run -d -p 5000:5000 --name app sievers-study-hall:${{ github.sha }}
+      - run: docker run -d --network host -e DATABASE_URL=postgresql+psycopg://study_hall:study_hall@localhost:5432/study_hall_test --name app sievers-study-hall:${{ github.sha }}
       - run: |
           for i in $(seq 1 30); do
             if curl -f -s -o /dev/null http://localhost:5000/; then
