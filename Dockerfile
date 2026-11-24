@@ -12,6 +12,8 @@ COPY pyproject.toml uv.lock ./
 
 RUN uv sync --frozen --no-dev
 
+ENV PATH="/app/.venv/bin:$PATH"
+
 FROM base AS development
 
 ENV FLASK_APP=app.py
