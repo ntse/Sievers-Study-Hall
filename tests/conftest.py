@@ -15,6 +15,14 @@ from users.rate_limiting.decorator import rate_limit_exercise_submission
 from users.users.models import User, db
 
 
+@pytest.fixture(autouse=True)
+def reset_session_table_metadata():
+    """Flask-Session registers its table on the shared metadata for every app it is set up on."""
+    stale = db.metadata.tables.get(Config.SESSION_SQLALCHEMY_TABLE)
+    if stale is not None:
+        db.metadata.remove(stale)
+
+
 @pytest.fixture
 def database_uri():
     """Isolate each test in its own Postgres schema, never drop shared tables."""

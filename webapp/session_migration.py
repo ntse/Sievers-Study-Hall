@@ -5,7 +5,6 @@ Remove once legacy cookies have expired (PERMANENT_SESSION_LIFETIME after deploy
 
 from flask import request, session
 from flask.sessions import SecureCookieSessionInterface
-from flask_session import Session
 from itsdangerous import BadData
 
 
@@ -20,15 +19,6 @@ def _load_legacy_session(app, value):
     except BadData:
         return None
     return data if isinstance(data, dict) else None
-
-
-def init_server_side_sessions(app, db):
-    app.config["SESSION_SQLALCHEMY"] = db
-    # Flask-Session defines its model on db.metadata; drop a stale one from earlier app instances.
-    stale = db.metadata.tables.get(app.config["SESSION_SQLALCHEMY_TABLE"])
-    if stale is not None:
-        db.metadata.remove(stale)
-    Session(app)
 
 
 def init_legacy_session_migration(app):

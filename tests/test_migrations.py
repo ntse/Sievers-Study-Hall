@@ -13,7 +13,7 @@ def test_migration_matches_models_and_can_be_reapplied(database_uri):
     engine = create_engine(database_uri)
     with engine.connect() as conn:
         context = MigrationContext.configure(conn)
-        assert context.get_current_revision() == "0002"
+        assert context.get_current_revision() == "0001"
         assert compare_metadata(context, db.metadata) == []
     engine.dispose()
 

@@ -3,14 +3,12 @@
 import pytest
 from flask import Flask, jsonify, session
 from flask.sessions import SecureCookieSessionInterface
+from flask_session import Session
 from sqlalchemy import text
 
 from config import Config
 from users.users.models import db
-from webapp.session_migration import (
-    init_legacy_session_migration,
-    init_server_side_sessions,
-)
+from webapp.session_migration import init_legacy_session_migration
 
 
 @pytest.fixture
@@ -21,7 +19,8 @@ def session_app(database_uri):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
     app.secret_key = "test-secret"
     db.init_app(app)
-    init_server_side_sessions(app, db)
+    app.config["SESSION_SQLALCHEMY"] = db
+    Session(app)
     init_legacy_session_migration(app)
 
     @app.route("/get")
