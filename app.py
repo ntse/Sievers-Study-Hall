@@ -4,10 +4,12 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
+from flask_session import Session
 
 from config import Config, database_url
 from users.users.models import User, db
 from webapp.routes import routes_bp
+from webapp.session_migration import init_legacy_session_migration
 
 app = Flask(
     __name__,
@@ -39,6 +41,9 @@ mail = Mail()
 mail.init_app(app)
 
 db.init_app(app)
+app.config["SESSION_SQLALCHEMY"] = db
+Session(app)
+init_legacy_session_migration(app)
 migrate = Migrate(app, db)
 
 # Minimal Flask-Login setup (needed for login_user/logout_user)

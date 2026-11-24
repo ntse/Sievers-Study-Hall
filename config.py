@@ -30,8 +30,14 @@ def database_url(value=None):
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS: ClassVar[dict] = {"pool_pre_ping": True}
+    SESSION_TYPE = "sqlalchemy"
+    SESSION_SQLALCHEMY_TABLE = "sessions"
+    SESSION_USE_SIGNER = True
     SESSION_PERMANENT = True
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
+    # Differs from Flask's legacy client-side "session" cookie so the two can be told apart.
+    SESSION_COOKIE_NAME = "sid"
+    LEGACY_SESSION_COOKIE_NAME = "session"
+    PERMANENT_SESSION_LIFETIME = timedelta(days=180)
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
