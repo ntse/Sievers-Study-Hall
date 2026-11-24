@@ -62,6 +62,12 @@ jobs:
       - run: docker load --input /tmp/image.tar
         if: inputs.base-url == '' && inputs.image != ''
       - run: pip install -r requirements-e2e.txt
+      - uses: actions/cache@e12d46a63a90f2fae62d1d7d63f659330e2d7d80 # v3
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('requirements-e2e.txt') }}
+          restore-keys: playwright-chromium-${{ runner.os }}-
       - run: python -m playwright install --with-deps chromium
       - name: Run browser journeys
         run: python -m pytest e2e/ -v -m "$E2E_MARKERS" --tracing retain-on-failure --screenshot only-on-failure
