@@ -1,5 +1,8 @@
 import os
+import smtplib
+import ssl
 from datetime import UTC, datetime
+from email.message import EmailMessage
 
 from flask import (
     current_app,
@@ -51,11 +54,6 @@ def verify_reset_token(token, max_age_seconds=3600):
     return User.query.get(uid)
 
 
-import smtplib
-import ssl
-from email.message import EmailMessage
-
-
 def send_password_reset_email(to_email, reset_url):
     msg = EmailMessage()
     msg["Subject"] = "Reset your Sievers Study Hall password"
@@ -75,7 +73,6 @@ def send_password_reset_email(to_email, reset_url):
 # --- Forgot password: request form ---
 @routes_bp.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
-
     language = get_language(request, session)
 
     if current_user.is_authenticated:
@@ -111,7 +108,6 @@ def forgot_password():
 # --- Reset password: uses token ---
 @routes_bp.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token):
-
     language = get_language(request, session)
 
     if current_user.is_authenticated:
@@ -150,7 +146,6 @@ def reset_password(token):
 
 @routes_bp.route("/signin", methods=["GET", "POST"])
 def signin():
-
     language = get_language(request, session)
 
     # Already logged in? Go to settings.
@@ -190,7 +185,6 @@ def signin():
 
 @routes_bp.route("/signup", methods=["GET", "POST"])
 def signup():
-
     language = get_language(request, session)
 
     if current_user.is_authenticated:

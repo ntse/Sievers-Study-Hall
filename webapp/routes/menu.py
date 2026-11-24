@@ -1,7 +1,9 @@
+import datetime
 from typing import cast
 
-from flask import request, session
+from flask import Response, current_app, render_template, request, session, url_for
 from flask_login import current_user, login_required
+from werkzeug.routing import BuildError
 
 from data.content.application.buttons import HOMEPAGE, UNIT_PARTICULARLY_LIKE_BY_USERS
 from data.content.application.text import (
@@ -67,7 +69,6 @@ session = cast(dict, session)
 
 @routes_bp.route("/", endpoint="home")
 def home():
-
     language = get_language(request, session)
 
     home_description = HOME_DESCRIPTION[language]
@@ -145,7 +146,6 @@ for unit in units:
 
 @routes_bp.route("/settings", endpoint="settings")
 def settings():
-
     language = get_language(request, session)
 
     page = {
@@ -165,7 +165,6 @@ def settings():
 
 @routes_bp.route("/about", endpoint="about")
 def about():
-
     language = get_language(request, session)
 
     page = {
@@ -181,7 +180,6 @@ def about():
 
 @routes_bp.route("/privacy", endpoint="privacy")
 def privacy():
-
     language = get_language(request, session)
 
     page = {
@@ -197,7 +195,6 @@ def privacy():
 
 @routes_bp.route("/legal", endpoint="legal")
 def legal():
-
     language = get_language(request, session)
 
     page = {
@@ -214,7 +211,6 @@ def legal():
 @routes_bp.route("/bookmarks")
 @login_required
 def bookmarks():
-
     language = get_language(request, session)
 
     bookmark = (
@@ -246,7 +242,6 @@ def bookmarks():
 
 @routes_bp.route("/progress")
 def progress():
-
     language = get_language(request, session)
 
     page = {
@@ -293,12 +288,6 @@ def robots_txt():
         "Sitemap: https://www.sieversstudyhall.com/sitemap.xml\n"
     )
     return Response(content, mimetype="text/plain")
-
-
-import datetime
-
-from flask import Response, current_app, render_template, url_for
-from werkzeug.routing import BuildError
 
 
 @routes_bp.route("/sitemap.xml")

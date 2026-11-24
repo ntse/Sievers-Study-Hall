@@ -278,7 +278,7 @@ def get_fraction_exercises_finished_by_level(session, level):
     total = len(df_level)
     done = 0
 
-    for unit, exercise in zip(df_level["unit"], df_level["exercise"]):
+    for unit, exercise in zip(df_level["unit"], df_level["exercise"], strict=False):
         if is_exercise_completed(unit, exercise, session):
             done += 1
 
@@ -295,7 +295,7 @@ def get_random_unit_and_lowest_unfinished_exercise(session, level):
 
     unfinished_rows = []
 
-    for unit, exercise in zip(df_level["unit"], df_level["exercise"]):
+    for unit, exercise in zip(df_level["unit"], df_level["exercise"], strict=False):
         if not is_exercise_completed(unit, exercise, session):
             unfinished_rows.append((unit, exercise))
 
@@ -315,13 +315,12 @@ def get_random_unit_and_lowest_unfinished_exercise(session, level):
 
 
 def get_unfinished_exercises(session, df=df_exercises):
-
     if df.empty:
         return []
 
     unfinished = []
 
-    for unit, exercise in zip(df["unit"], df["exercise"]):
+    for unit, exercise in zip(df["unit"], df["exercise"], strict=False):
         if not is_exercise_completed(unit, exercise, session) and is_exercise_started(
             session, unit, exercise
         ):

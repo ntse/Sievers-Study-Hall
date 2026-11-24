@@ -50,11 +50,11 @@ class RateLimitConfig:
         elif cls.BACKEND == "redis":
             try:
                 import redis
-            except ImportError:
+            except ImportError as err:
                 raise ValueError(
                     "Redis backend selected but 'redis' package not installed. "
                     "Install with: pip install redis"
-                )
+                ) from err
 
             from users.rate_limiting.redis_limiter import RedisRateLimiter
 
@@ -62,7 +62,9 @@ class RateLimitConfig:
                 redis_client = redis.from_url(cls.REDIS_URL)
                 redis_client.ping()  # Test connection
             except (redis.exceptions.RedisError, ValueError, OSError) as e:
-                raise ValueError(f"Failed to connect to Redis at {cls.REDIS_URL}: {e}")
+                raise ValueError(
+                    f"Failed to connect to Redis at {cls.REDIS_URL}: {e}"
+                ) from e
 
             # Return a wrapper class that includes the redis client
             class ConfiguredRedisRateLimiter(RedisRateLimiter):

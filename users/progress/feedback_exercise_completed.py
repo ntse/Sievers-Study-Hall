@@ -57,7 +57,10 @@ def get_incorrect_answers(session, unit, exercise):
         ids = exercise_state.get("falses", [])
         answers = exercise_state.get("incorrect_answer", [])
 
-        return {int(question_id): answer for question_id, answer in zip(ids, answers)}
+        return {
+            int(question_id): answer
+            for question_id, answer in zip(ids, answers, strict=False)
+        }
 
 
 def get_feedback_exercise(session, unit, exercise, language, incorrect):

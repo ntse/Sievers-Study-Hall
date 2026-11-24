@@ -296,7 +296,6 @@ def exercise_page(unit, exercise):
 @routes_bp.route("/check/<unit>/exercise/<int:exercise>", methods=["POST", "GET"])
 @rate_limit_exercise_submission
 def check_answer(unit, exercise):
-
     language = get_language(request, session)
 
     init_session_key(session, unit, exercise, "progress")
