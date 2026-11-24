@@ -223,7 +223,6 @@ def get_list_of_correct_answers(
 
 
 def get_first_correct_answer(correct_answer):
-
     if "/" in correct_answer:
         answers = correct_answer.split("/")
         # return remove_punctuation(answers[0])
@@ -270,7 +269,7 @@ def search_for_main_synonym(input_str, unit, df=df_synonyms):
     df["input"] = [replace_german_characters(entry) for entry in df["input"]]
     df["input"] = [remove_punctuation(entry) for entry in df["input"]]
 
-    mapping = dict(zip(df["input"], df["output"]))
+    mapping = dict(zip(df["input"], df["output"], strict=False))
 
     main_synonym = mapping.get(input_str, input_str).lower()
     main_synonym = replace_german_characters(main_synonym)

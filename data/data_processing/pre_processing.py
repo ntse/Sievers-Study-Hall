@@ -33,7 +33,7 @@ def pre_processing_praesens(data):
     persons = ["ich", "du", "er/sie/es", "wir", "ihr", "Sie"]
     new_rows = []
 
-    for index, row in data.iterrows():
+    for _index, row in data.iterrows():
         for person in persons:
             new_row = row.drop(persons).to_dict()
             new_row["person"] = person
@@ -46,12 +46,11 @@ def pre_processing_praesens(data):
 
 
 def pre_processing_praeteritum(data, exercise):
-
     if exercise == 1:
         persons = ["ich", "du", "er/sie/es", "wir", "ihr", "Sie"]
         new_rows = []
 
-        for index, row in data.iterrows():
+        for _index, row in data.iterrows():
             for person in persons:
                 new_row = row.drop(persons).to_dict()
                 new_row["person"] = person
@@ -72,7 +71,7 @@ def pre_processing_imperativ(data):
     persons = ["du", "ihr", "Sie"]
     new_rows = []
 
-    for index, row in data.iterrows():
+    for _index, row in data.iterrows():
         for person in persons:
             new_row = row.drop(persons).to_dict()
             new_row["person"] = person
@@ -88,7 +87,7 @@ def pre_processing_konjunktiv_ii(data):
     persons = ["ich", "du", "er/sie/es", "wir", "ihr", "Sie"]
     new_rows = []
 
-    for index, row in data.iterrows():
+    for _index, row in data.iterrows():
         for person in persons:
             new_row = row.drop(persons).to_dict()
             new_row["person"] = person
@@ -104,7 +103,7 @@ def pre_processing_konjunktiv_i(data):
     persons = ["ich", "du", "er/sie/es", "wir", "ihr", "Sie"]
     new_rows = []
 
-    for index, row in data.iterrows():
+    for _index, row in data.iterrows():
         for person in persons:
             new_row = row.drop(persons).to_dict()
             new_row["person"] = person

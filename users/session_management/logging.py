@@ -254,7 +254,7 @@ def get_next_number(file):
     """
     next_nr = 1
     if os.path.exists(file):
-        with open(file, "r", encoding="utf-8") as handle:
+        with open(file, encoding="utf-8") as handle:
             lines = [line for line in handle if line.strip()]
             if len(lines) > 1:
                 last_line = lines[-1]
